@@ -25,9 +25,23 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" | base64 -d > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      - name: Connect to AWS EC2 and pull latest code
+      - name: Deploy application using Docker
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && git pull origin main"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << EOF
+            cd ${{ secrets.WORK_DIR }}
+
+            # Pull the latest code
+            git pull origin main
+
+            # Stop and remove the running container
+            docker-compose down
+
+            # Remove existing Docker containers and images
+            docker system prune -af
+
+            # Start the container with the latest code
+            docker-compose up --build -d
+          EOF
 
       - name: Cleanup SSH credentials
         run: rm -rf ~/.ssh
