@@ -7,10 +7,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5000:5000"
-    volumes:
-      - ./src:/tp5mai/src
-      - /app/node_modules
-      - /app/node_modules/react-scripts
     container_name: tp5mai
     restart: always
 
